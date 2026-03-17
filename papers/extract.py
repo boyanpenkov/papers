@@ -419,7 +419,7 @@ def extract_pdf_metadata(pdf, the_lock, search_doi=True, search_fulltext=True, m
         out = '''@misc{{{doi},
              doi = {{{doi}}},
              url = {{http://dx.doi.org/{doi}}},
-            }}'''
+            }}'''.format(doi=doi)
     return out
 
 @cached('crossref.json')
