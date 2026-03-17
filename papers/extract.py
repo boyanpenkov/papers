@@ -420,7 +420,6 @@ def extract_pdf_metadata(pdf, the_lock, search_doi=True, search_fulltext=True, m
              url = {{http://dx.doi.org/{doi}}},
             }}'''
     return out
->>>>>>> unhandled_assert
 
 @cached('crossref.json')
 def fetch_crossref_by_doi(doi):
