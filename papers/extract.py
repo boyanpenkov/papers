@@ -415,7 +415,6 @@ def extract_pdf_metadata(pdf, the_lock, search_doi=True, search_fulltext=True, m
         out = extract_txt_metadata(txt, search_doi, search_fulltext, lock=the_lock, **kw)
     except ValueError:
         logger.warn("Failed to return extracted text metadata, returning default.")
->>>>>>> unhandled_assert
         doi = 0
         out = '''@misc{{{doi},
              doi = {{{doi}}},
