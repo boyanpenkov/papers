@@ -885,7 +885,7 @@
   <span class="md-ellipsis">
     
   
-    Git integration
+    Using git
   
 
     
@@ -971,6 +971,10 @@ name followed by <code>--</code> and the file's original name:</p>
 <p>The label after <code>--</code> is kept when the entry is renamed again (e.g. after its
 title or year was fixed), so only the part before <code>--</code> changes. If two
 attachments have the same original name, the second one gets a <code>-2</code> suffix.</p>
+<p>Two entries can get the same file name (the same authors, year and title,
+e.g. a preprint and the published paper). A file of another entry is never
+replaced: the second file gets a <code>-2</code> suffix (<code>-3</code>, ... after that), unless
+it has the same content, in which case both entries link to the same file.</p>
 <p>Versions before 2.19 placed the files of an entry with several files in a
 folder named after the entry, with a hidden copy of the entry
 (<code>files/&lt;name&gt;/.&lt;name&gt;.bib</code>). Such folders keep working as they are: their
@@ -988,31 +992,41 @@ template or fixing an entry's title:</p>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>papers file rename perrette2013         # some entries
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>papers list --year 2013 --rename       # the listed entries
 </code></pre></div>
-<p>Each file is moved into the files directory under its new name;
-<code>--keep-source</code> keeps the original too (a hard link when possible). A file
-that belongs to another library is copied, not moved. <code>papers list ... --rename</code>
-and the deprecated <code>papers filecheck --rename</code> run this command.</p>
+<p>A file already in the files directory is renamed. A file outside it (e.g.
+in a folder of your project) is moved, copied or left where it is as the
+<code>files</code> setting says (moved by default, see
+<a href="../files/#what-add-does-with-a-file">Files</a>). <code>--move</code>, <code>--copy</code> and
+<code>--link</code> override the setting; <code>--keep-source</code> is the same as <code>--copy</code> (a
+hard link when possible). A file that belongs to another library is copied,
+not moved. <code>papers list ... --rename</code> runs this command (with <code>--move</code> or
+<code>--keep-source</code>); the deprecated <code>papers filecheck --rename</code> moves the
+files, whatever the setting.</p>
 <h2 id="control-fields-when-renaming-files">Control fields when renaming files<a class="headerlink" href="#control-fields-when-renaming-files" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$&gt; papers add --move --info --name-template "{AuthorX}{year}-{Title}" --name-title-sep '' --name-author-sep '' esd-4-11-2013
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>INFO:papers:found doi:10.5194/esd-4-11-2013
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>INFO:papers:new entry: perrette2013scaling
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>INFO:papers:create directory: files/2013
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>INFO:papers:mv /home/perrette/playground/papers/esd-4-11-2013.pdf files/PerretteEtAl2013-AScalingApproachToProjectRegionalSeaLevelRiseAndItsUncertainties.pdf
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>INFO:papers:renamed file(s): 1
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$&gt; papers add --move -v --name-template "{AuthorX}{year}-{Title}" --name-title-sep '' --name-author-sep '' esd-4-11-2013
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>papers: info: found doi:10.5194/esd-4-11-2013
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>papers: info: new entry: perrette2013scaling
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>papers: info: create directory: files/2013
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>papers: info: mv /home/perrette/playground/papers/esd-4-11-2013.pdf files/PerretteEtAl2013-AScalingApproachToProjectRegionalSeaLevelRiseAndItsUncertainties.pdf
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>papers: info: renamed file(s): 1
 </code></pre></div>
 <p>where <code>--name-template</code> is a python template (formatted via the <code>.format()</code>
 method). Its placeholders are:</p>
 <ul>
 <li><code>{author}</code>, <code>{Author}</code>, <code>{AUTHOR}</code>, <code>{authorX}</code>, <code>{AuthorX}</code>: the authors
   (see below)</li>
-<li><code>{year}</code>, <code>{journal}</code></li>
+<li><code>{year}</code>, <code>{journal}</code> (empty for an entry without journal: a folder of
+  the template that is empty, as in <code>{journal}/{author}</code>, is left out)</li>
 <li><code>{title}</code>, <code>{Title}</code>: the title words (see the modifiers below)</li>
 <li><code>{key}</code> (or <code>{ID}</code>): the bibtex key of the entry</li>
 <li><code>{doi}</code>, <code>{doi_}</code> (the doi with <code>-</code> in place of <code>/</code>, <code>.</code> and the other
   characters that are not letters or digits, for a file name),
-  <code>{doi_or_id}</code> (the same, or the key if the entry has no doi)</li>
+  <code>{doi_or_id}</code> (the same, or the key if the entry has no doi, or an empty one)</li>
 </ul>
-<p>Another placeholder is an error that lists these.</p>
+<p>Another placeholder is an error that lists these. A name that would place
+the file outside the files directory (<code>../{author}</code>) is refused: the files
+of that entry stay where they are, and <code>papers file rename</code> exits with
+status 1 once it has renamed the files of the other entries. <code>papers file
+attach</code> keeps the new link to the file where it is, and exits with status 1.</p>
 <p>To rename <code>esd-4-11-2013.pdf</code> as <code>perrette_2013.pdf</code>, the template should be
 <code>--name-template {author}_{year} --name-author-num 1</code>. If that happens to be
 the entry key, <code>{key}</code> also works.</p>
@@ -1021,6 +1035,22 @@ the entry key, <code>{key}</code> also works.</p>
 name-template should be
 <code>--name-template {year}/{Author}{year}-{Title} --name-title-sep ''</code>
 (note the case).</p>
+<p>The names made from the template are valid on every system. In each part
+of the name (the folders and the file name), papers:</p>
+<ul>
+<li>replaces the characters that Windows does not accept (<code>&lt;&gt;:"|?*</code> and
+  control characters) with <code>-</code> (<code>/</code> and <code>\</code> in the field values are
+  replaced with <code>-</code> too, so a field cannot add a folder),</li>
+<li>removes trailing dots and spaces,</li>
+<li>adds <code>-</code> after a name that Windows reserves (<code>CON</code>, <code>PRN</code>, <code>AUX</code>, <code>NUL</code>,
+  <code>COM1</code> to <code>COM9</code>, <code>LPT1</code> to <code>LPT9</code>),</li>
+<li>cuts the name to 250 bytes (UTF-8), extension included (a <code>-2</code> suffix
+  for a name already taken can follow).</li>
+</ul>
+<p>This applies only to the names papers makes from the template: a file
+linked where it is keeps its name, and a file named before this rule keeps
+its name until the entry is renamed (<code>papers file rename</code>, <code>papers list
+--rename</code>).</p>
 <h2 id="case-sensitive-fields">Case-sensitive fields<a class="headerlink" href="#case-sensitive-fields" title="Permanent link">&para;</a></h2>
 <p>Entries are case-sensitive, and a few more fields are added, so that:</p>
 <ul>
@@ -1031,6 +1061,10 @@ name-template should be
   depending on the number of authors</li>
 <li><code>AuthorX</code> same as <code>authorX</code> but capitalized</li>
 </ul>
+<p>The author names, the title words, <code>{doi_}</code> and <code>{doi_or_id}</code> are written
+in ASCII: accented and non-Latin letters are transliterated with the table
+of AnyAscii (<code>Müller</code> gives <code>muller</code>, <code>Хрущёв</code> gives <code>khrushchev</code>, <code>北京</code>
+gives <code>beijing</code>), and other characters separate words.</p>
 <h2 id="modifiers">Modifiers<a class="headerlink" href="#modifiers" title="Permanent link">&para;</a></h2>
 <p>The modifiers are:</p>
 <ul>
@@ -1056,6 +1090,11 @@ name-template should be
 </ul>
 <p>The same template and modifiers system applies to the bibtex key generation by
 replacing the prefix <code>--name-</code> with <code>--key-</code>, e.g. <code>--key-template</code>.</p>
+<p>When the key template gives an empty key (an entry without author, year and
+DOI, with the default templates), a new entry gets a key from the first word
+of its title (of at least 3 letters) and its year: <code>only2000</code> for "Only a
+title" of 2000, <code>only</code> without year, <code>entry</code> without title. <code>papers check
+--fix-key</code> and the other renames keep the key of the entry instead.</p>
 <p>In the common case where the bibtex (<code>--bibtex</code>), files directory
 (<code>--filesdir</code>), and name and key formats (e.g. <code>--name-template</code>) do not
 change, it is convenient to store them in a <a href="../configuration/">library configuration</a>

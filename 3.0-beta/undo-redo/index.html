@@ -781,7 +781,7 @@
   <span class="md-ellipsis">
     
   
-    Git integration
+    Using git
   
 
     
@@ -862,6 +862,61 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#the-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The history
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#taking-back-an-older-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Taking back an older step
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deleted-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deleted files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes-made-outside-papers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changes made outside papers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-history-is" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the history is
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#undo-in-a-library-that-has-a-pool" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -869,6 +924,56 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-undo-finds-the-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How undo finds the files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checksums" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checksums
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-a-step-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a step holds
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -917,48 +1022,190 @@
 <p>Did a <code>papers add</code> and are unhappy with the result?</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>papers undo
 </code></pre></div>
-<p>will revert to the previous version. Without git-tracking, repeating it only
-jumps back and forth between the latest and before-latest version.</p>
-<p>With git-tracking (the default of <code>papers init</code> when git is installed), <code>papers undo</code> and
-<code>papers redo</code> step through the whole history of the library (<code>-n N</code> steps at
-once).
-History is append-only: undo and redo record <em>restore commits</em> in the backup
-repository instead of rewriting it, so no state is ever lost. In particular,
-making a new change while undone starts a new line of history on top, and the
-states that were still redoable remain reachable with further <code>papers undo</code>
-or with <code>papers restore --ref COMMIT</code> (use <code>papers git log</code> to find
-<code>COMMIT</code>). <code>papers restore</code> without <code>--ref</code> restores the last version of the
-backup. <code>papers restore-backup</code> is the deprecated name of <code>papers restore</code>.</p>
-<p><code>papers undo</code> and <code>papers redo</code> print the state they restore, with the
-command that made it, e.g.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>undo: papers.bib restored to 3f2a1c9 papers add paper.pdf (2026-10-22 14:03)
+<p>puts the library back as it was before the command: the bibtex, and the
+files that the command moved, renamed, copied or deleted. <code>papers redo</code>
+does the command's changes again. Both take <code>-n N</code> to go several steps at
+once.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$ papers add ~/Downloads/esd-4-11-2013.pdf --move
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>$ papers undo
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>undo: papers.bib restored to 4f1c9a2e papers add ~/Downloads/esd-4-11-2013.pdf --move (2026-10-22 14:03)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    files/perrette_2013_a-scaling-approach.pdf --&gt; moved back to ~/Downloads/esd-4-11-2013.pdf
 </code></pre></div>
-<p>Files that the undone command placed in the files directory stay there.
-When no entry links to them any more (e.g. after undoing <code>papers file
-attach</code>), papers lists them: <code>papers file clean</code> removes them. A file
-deleted by <code>papers file rm</code> is not restored: undo restores the link, which
-is then broken.</p>
-<h2 id="undo-in-a-library-that-has-a-pool">Undo in a library that has a pool<a class="headerlink" href="#undo-in-a-library-that-has-a-pool" title="Permanent link">&para;</a></h2>
-<p>A pool is a library with its own backup and its own history. A command that
-exchanges entries with the pool (<code>add</code> in a shallow library, a command
-that changes entries with auto-push; <code>push</code>, <code>pull</code>, <code>sync</code>) writes both, and each records a
-step in its own history.</p>
+<p>There is nothing to set up: every command that changes a library records a
+step in its history.</p>
+<h2 id="the-history">The history<a class="headerlink" href="#the-history" title="Permanent link">&para;</a></h2>
+<p><code>papers history</code> lists the steps of the library, the latest first. <code>&gt;</code>
+marks where the library is now, and the steps that <code>papers redo</code> can bring
+back are marked as undone:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$ papers history
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  b7e30d51 papers rm smith2020 --delete-files (2026-10-22 14:10)  (undone: `papers redo`)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>&gt; 4f1c9a2e papers add ~/Downloads/esd-4-11-2013.pdf --move (2026-10-22 14:03)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  92ad6c07 papers tag smith2020 --add climate (2026-10-21 09:12)
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  ...
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>history: ~/.local/share/papers/history, 3.2 MB (up to 500 MB: the history-size setting; deleted files kept)
+</code></pre></div>
+<p>A step is named by its identifier, the first column: 8 characters of the
+sha256 of the step (of its bibtex, its other files, its parent and its
+time), which never changes. A command that takes a step accepts the start
+of it, 4 characters or more, as long as no other step starts the same way.</p>
+<p><code>papers restore STEP</code> brings the library to that step. Making a change after an
+undo starts a new line of history; the undone steps are not lost, and
+<code>papers restore STEP</code> still reaches them.</p>
+<h2 id="taking-back-an-older-step">Taking back an older step<a class="headerlink" href="#taking-back-an-older-step" title="Permanent link">&para;</a></h2>
+<p><code>papers undo -n 3</code> goes back over the last three steps. To take back one
+step alone and keep the steps made after it, give its identifier (or the
+start of it, see <a href="#the-history">The history</a>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$ papers history --revert 92ad
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Modified -&gt; smith2020: Sea level rise... (later)
+</code></pre></div>
+<p>The revert is a new step of the history (<code>papers undo</code> takes it back). For
+each entry that the step changed, papers compares the entry before the step,
+after it, and now:</p>
 <ul>
-<li><code>papers undo</code> and <code>papers redo</code> in the library change the library only.
-  The pool keeps what the undone command wrote to it.</li>
-<li><code>papers -C POOL undo</code> and <code>papers -C POOL redo</code> change the pool only.</li>
+<li>an entry that the step added is removed, unless it changed since (it is
+  kept, and a line says so);</li>
+<li>an entry that the step removed comes back as it was, unless the library
+  has an entry with its key now (or with its key among its former keys):
+  that entry stays, and a line says so when it is not the removed one;</li>
+<li>a field that the step changed goes back to its value before the step,
+  unless it changed since: then it is a conflict, decided as for
+  <a href="../pools/#papers-pull"><code>papers pull</code></a>, with <code>--on-duplicate</code> (<code>keep</code>: the
+  value now, <code>update</code>: the value before the step; in a terminal, papers asks);</li>
+<li>the tags and the file links are taken one by one: those that the step added
+  are removed, those it removed come back, those added since stay;</li>
+<li>a key that the step changed (with <code>--keep-old-key</code>, which keeps the former
+  key in <code>ids</code>) goes back to the former key.</li>
 </ul>
-<p>The library also restores its origin copies (<code>.papers/origin/</code>, see
-<a href="../pools/#origin-copies">Pools</a>) and <code>.papers/distinct.json</code> to the state of
-the step it goes back to, and removes those that did not exist at that step.
-The next exchange then compares the library and the pool to the origin
-copies of that step:</p>
+<p>The files go back as undo moves them, for the files of the step only: a file
+that the step moved or renamed is moved back, a file it deleted comes back
+from the history. The pairs that the step recorded in <code>.papers/distinct.json</code>
+(entries that are not the same paper) are removed. The origin copies
+(<code>.papers/origin/</code>) are not changed: the next <code>pull</code> or <code>push</code> compares
+with them, and with auto-push the revert is pushed like any command.</p>
+<p>A step that also changed the pool is reverted in the library only; a line
+gives the command that reverts the pool's step:
+<code>papers -C ../pool history --revert 3c5e0b7a</code>.</p>
+<h2 id="deleted-files">Deleted files<a class="headerlink" href="#deleted-files" title="Permanent link">&para;</a></h2>
+<p>A file that a command deletes (<code>papers rm --delete-files</code>, <code>papers file
+rm</code>, <code>papers file clean</code>...) is kept by the history, and <code>papers undo</code> puts
+it back, also when no entry linked to it, or when the command was stopped
+(an error, Ctrl-C) after deleting it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>undo: papers.bib restored to 4f1c9a2e papers add paper.pdf (2026-10-22 14:03)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    files/perrette_2013_a-scaling-approach.pdf: restored from the history
+</code></pre></div>
+<p>The history keeps up to 500 MB (the <code>history-size</code> setting). Beyond that,
+the oldest steps are dropped first, and the deleted files that only they
+needed go to the trash of the system (a step that brought a file back from
+the history, <code>papers file fix</code> or <code>papers history --revert</code>, needs it too). Before a command that deletes more
+than the history keeps, or so much that recent steps would be dropped,
+papers asks first (<code>-y</code> answers yes; without a terminal, the files are
+kept):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>3 files to delete, 812 MB: more than the history keeps (history-size: 500 MB).
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>- This command cannot be undone: the files go to the trash of the system, not to the history (the history keeps its steps).
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Proceed? [y/N]
+</code></pre></div>
+<p><code>papers history</code> shows the size of the files each step keeps
+(<code>[3.2 MB of deleted files]</code>). <code>papers history --drop-files STEP</code> removes from
+the history the files that the step deleted, and <code>--drop-files PATH</code> the file
+deleted from PATH (by any step): they go to the trash of the system, the
+steps stay, and undo says the files are no longer in the history. <code>papers
+history --remove</code> removes the whole history of the library. Both ask
+first (<code>-y</code> does not); with <code>--dry-run</code> they only say what they would remove.</p>
+<p>If you would rather not keep deleted files at all (you have your own
+backups, or no space to spare): <code>papers config --global keep-deleted-files
+false</code>. Deleted files then go straight to the trash of the system, and undo
+says it cannot bring them back.</p>
+<h2 id="changes-made-outside-papers">Changes made outside papers<a class="headerlink" href="#changes-made-outside-papers" title="Permanent link">&para;</a></h2>
+<p>When you edit the bibtex yourself (in an editor, JabRef, another program,
+or on another computer that syncs the library), papers notices it at its
+next command and records your change as a step of its own, "changed outside
+papers". <code>papers undo</code> never drops it silently: undoing a papers command
+goes back to what was on disk just before it, your change included.</p>
+<p>The step of your change also has the files of <code>.papers/</code> (the origin
+records of a library with a pool, <code>distinct.json</code>, <code>files.json</code>) as they
+were on disk, so a synced folder that brought a new bibtex and new origin
+records together gives one consistent step. papers notices a change by the
+bibtex only: a change made outside papers to the files of <code>.papers/</code> alone
+is not a step of its own, it becomes part of the next command's step (and
+undoing that command takes it back too).</p>
+<p>Running <code>papers undo</code> right after your own edit undoes that edit (<code>papers
+redo</code> brings it back). <code>papers restore</code> without a step number does the
+same: it puts the library back to its last step, as papers left it.</p>
+<h2 id="where-the-history-is">Where the history is<a class="headerlink" href="#where-the-history-is" title="Permanent link">&para;</a></h2>
+<p>The history is kept on your computer, not in the library:
+<code>~/.local/share/papers/history</code> on Linux (the <code>history-dir</code> setting). It is
+not synced or shared with the library: a library you copy to another
+computer, or receive from someone, starts with an empty history there.</p>
+<p>The history follows the library: moving or renaming the library folder
+keeps it (each library has an identifier, <code>id</code> in <code>.papers/config.json</code>).
+A copy of a library shares the history up to the copy, then each folder
+has its own steps. <code>papers export</code> makes a new library, with a history of
+its own.</p>
+<p><code>papers history --all</code> lists the histories on the computer, with the space
+each one uses; <code>papers history --remove</code> removes that of the library
+(<code>--remove ID</code>: another one, e.g. of a library you deleted).</p>
+<p>All libraries share one store, so that a file kept by several of them is
+stored once. <code>papers config history-separate true</code> gives a library a store
+of its own, with its own <code>history-size</code>.</p>
+<h2 id="undo-in-a-library-that-has-a-pool">Undo in a library that has a pool<a class="headerlink" href="#undo-in-a-library-that-has-a-pool" title="Permanent link">&para;</a></h2>
+<p>A pool is a library with its own history. A command that exchanges entries
+with the pool (<code>add</code> in a shallow library, a command that changes entries
+with auto-push; <code>push</code>, <code>pull</code>, <code>sync</code>) writes both, and each records a
+step in its own history. When the command wrote the pool, the step of the
+library also records the step of the pool.</p>
 <ul>
-<li>After undoing a <code>push</code> or a <code>pull</code> in the library, the pool shows as
+<li><code>papers undo</code> and <code>papers redo</code> in the library undo and redo the pool's
+  step too, as long as the pool is still where the command left it (for
+  redo: where the undo left it). The files that the command moved to the
+  files directory of the pool are moved back.</li>
+<li>If the pool changed since (another command in the pool or in another
+  library that shares it), papers reverts the pool's step there instead (a
+  new step of the pool, see <a href="#taking-back-an-older-step">Taking back an older step</a>).
+  An entry that changed in the pool since stays; in a terminal, papers asks
+  about a field changed on both sides. <code>papers redo</code> then reverts that
+  revert. If the undo took the pool's step back and the pool changed
+  after it, <code>papers redo</code> does the step again there (a new step of the
+  pool, with the same rules).</li>
+<li>If the pool changed outside papers since its last step, the library only
+  is undone, and a line says so.</li>
+<li>With auto-push, the shared entries that differ from their origin copy are
+  pushed after the undo or redo, as after any command. In general there is
+  nothing to push: the undo restores the origin copies with the bibtex.
+  There is something when a step was made with auto-push off; that push is
+  then a new step, after which there is nothing to redo, as after any
+  command (<code>papers restore STEP</code> still goes to the steps undone).</li>
+<li><code>papers undo --library-only</code> (and <code>redo --library-only</code>) leave the pool
+  as it is: the files that the command moved to the pool are copied back.</li>
+<li>The pool does not know which libraries use its entries. If another
+  library pulled an entry since the <code>add</code> that undo takes back, that
+  library's link to the PDF breaks: the PDF goes back where it came from,
+  and <code>papers file fix --search FOLDER</code> there finds it.</li>
+<li><code>papers -C POOL undo</code> and <code>papers -C POOL redo</code> change the pool only:
+  they undo the last change of the pool, whichever library made it. In the
+  history of the pool, a step made from a library names it:
+  <code>31 papers add ../new.bib (2026-10-28 10:09, from ~/papers/paper2)</code>.</li>
+<li>The library and the pool are locked during the undo (see
+  <a href="../library-management/#two-commands-at-the-same-time">Two commands at the same time</a>):
+  no other command changes the pool between the moment undo looks where the
+  pool is and the moment it writes it.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$ papers add ~/Downloads/esd-4-11-2013.pdf --move
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>$ papers undo
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>undo: papers.bib restored to 0e8d41f3 papers pull (2026-10-28 10:12)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    ~/sealevel/files/perrette_2013_a-scaling-approach.pdf --&gt; moved back to ~/Downloads/esd-4-11-2013.pdf
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>pool ../sealevel: also undone, restored to 3c5e0b7a papers push (2026-10-28 10:09)
+</code></pre></div>
+<p>The library also restores its origin copies (<code>.papers/origin/</code>, see
+<a href="../pools/#origin-copies">Pools</a>) and <code>.papers/distinct.json</code> to the step it
+goes back to, and removes those that did not exist at that step. The next
+exchange then compares the library and the pool to the origin copies of
+that step:</p>
+<ul>
+<li>After undoing a <code>pull</code>, or a <code>push</code> whose step the pool did not undo or
+  revert (<code>--library-only</code>, a conflict in the pool), the pool shows as
   changed in <code>papers status</code>: what the pool has beyond the restored state
   comes again with the next <code>pull</code>, and the next <code>push</code> does not send the
-  undone state back to the pool. To undo the change in the pool too, undo
-  there as well (<code>papers -C POOL undo</code>).</li>
+  undone state back to the pool.</li>
 <li>After an undo in the pool, the origin copies of the library still have the
   newer version, so the pool shows as changed, and a <code>pull</code> takes the pool's
   older values for the fields the library did not change since. A field
@@ -966,11 +1213,54 @@ copies of that step:</p>
   from the library too, unless the library changed it since (a conflict, see
   <a href="../pools/#papers-pull"><code>papers pull</code></a>).</li>
 </ul>
-<p>Without git-tracking, undo swaps the bibtex only: the origin copies stay as
-the last exchange left them. The undone change then counts as a change of
-the library: after undoing a <code>pull</code>, the next <code>push</code> sends the library's
-older values to the pool (it lists the entries it modifies).</p>
-<p>See <a href="../git/">Git integration</a> for how to enable git-tracking.</p>
+<p><code>papers restore STEP</code> restores the library only.</p>
+<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
+<h3 id="how-undo-finds-the-files">How undo finds the files<a class="headerlink" href="#how-undo-finds-the-files" title="Permanent link">&para;</a></h3>
+<p>Each step records the files its command moved, renamed, copied or deleted,
+with their checksum. Undo compares the files that the entries link to now
+with those of the step it goes back to, and finds each missing file:</p>
+<ul>
+<li>where the commands in between moved or copied it;</li>
+<li>by its checksum (<code>.papers/files.json</code>, see <a href="#checksums">Checksums</a>): a
+  file that no entry links to any more is moved, a file that an entry links
+  to, or a file of the pool, is copied;</li>
+<li>among the deleted files kept by the history.</li>
+</ul>
+<p>The rules:</p>
+<ul>
+<li>A file is never overwritten: if its former place is taken, papers says so
+  and leaves it where it is.</li>
+<li>A file whose content changed since the command (e.g. a PDF annotated
+  since) is left as it is, with a message.</li>
+<li>A file outside the library that a command only unlinked (e.g.
+  <code>papers file detach</code>) is never deleted by undo or redo, and the files
+  that no command touched are left alone.</li>
+<li>In a shallow library, a file that <code>add</code> moved into the files directory of
+  the pool is copied back: the pool entry keeps it.</li>
+</ul>
+<p>A file outside the library (<code>~/Downloads</code>, a folder of the project) is
+recorded with its full path; a file inside it, relative to the library
+(with the <code>paths absolute</code> setting, with its full path), so that undo in a
+copy of the library acts on the copy's files.</p>
+<p>When another program writes the bibtex while a papers command runs, papers
+does not overwrite it, and puts back the files that the command had
+already moved, copied or deleted.</p>
+<h3 id="checksums">Checksums<a class="headerlink" href="#checksums" title="Permanent link">&para;</a></h3>
+<p><code>.papers/files.json</code> holds the checksum (sha256) of the files that the
+entries link to. With the <code>checksums</code> setting (true by default), a command
+writes the checksum of the files it moves, copies, adds or links.
+<code>papers file checksum</code> writes the checksums of all the files (or of the
+entries given), <code>--check</code> reports the files whose content changed since
+their checksum (e.g. annotated PDFs) and writes nothing. With <code>papers
+config checksums false</code>, the commands write no checksum, and undo finds
+the files through the steps of the commands only.</p>
+<h3 id="what-a-step-holds">What a step holds<a class="headerlink" href="#what-a-step-holds" title="Permanent link">&para;</a></h3>
+<p>The bibtex, byte for byte (stored in pieces of about 32 entries: a step that
+changes one entry adds one piece, a few KB), the files of <code>.papers/</code> that belong to the library
+(origin copies, <code>distinct.json</code>, <code>files.json</code>; not <code>config.json</code>), the
+command and its time, and the files it moved, copied or deleted. The
+history keeps older contents of the bibtex, but not of the PDFs: an
+annotated PDF replaces the previous one.</p>
 
 
 

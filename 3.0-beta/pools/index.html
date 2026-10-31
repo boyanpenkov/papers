@@ -996,7 +996,7 @@
   <span class="md-ellipsis">
     
   
-    Git integration
+    Using git
   
 
     
@@ -1102,9 +1102,11 @@ shared with a coauthor (see
 <li><code>papers push</code> updates the entries shared with the pool, and adds the
   entries named, or all of them with <code>--all</code>;</li>
 <li><code>papers sync</code> does both;</li>
-<li><code>papers status</code> (pool of a shallow library) and <code>papers pull --check</code>
-  tell whether the pool changed since the last exchange with it: <code>up to
-  date</code>, or <code>changed since last pull or push</code>;</li>
+<li><code>papers status</code> (shallow library) tells how the library stands with its
+  pool: <code>in sync</code>, <code>pool changed</code>, <code>library changed</code> or <code>both changed</code>, and
+  which command shows and exchanges the changes (see
+  <a href="../configuration/#pools">Configuration</a>);
+  <code>papers pull --check</code> lists the entries that the pool changed;</li>
 <li><code>papers file fix</code> relinks the broken links to the files of the pool entry
   of the same paper (<code>papers file fix --pool PATH</code> also looks in PATH, which
   may have a pool itself; nothing changes in PATH and no origin copy is
@@ -1159,8 +1161,18 @@ side changed a field. A removed field counts as a change:</p>
 </tr>
 </tbody>
 </table>
+<p>Values that differ only by case, braces or the form of the names (<code>J.
+Smith</code> and <code>John Smith</code>) are equivalent. A change to an equivalent value
+(e.g. <code>CO2</code> to <code>{CO2}</code>) is taken when the side that receives has the
+value of the origin copy exactly. Otherwise, and for an entry without
+origin copy, equivalent values are not a difference: the side that
+receives keeps its value (for names, the fuller form of the two).</p>
 <p>Conflicts are decided in the dialogue or with <code>--on-duplicate</code> (see
-<a href="#papers-pull"><code>papers pull</code></a> and <a href="#papers-push"><code>papers push</code></a>). An entry
+<a href="#papers-pull"><code>papers pull</code></a> and <a href="#papers-push"><code>papers push</code></a>). <code>keep</code>
+keeps the values of the side that receives the changes, and <code>update</code> takes
+those of the side they come from: in <code>pull</code>, <code>keep</code> keeps the library's
+values; in <code>push</code>, it keeps the pool's. <code>papers sync</code> runs a pull, then a
+push, each with this rule. An entry
 without origin copy has no base: each field that differs is a conflict. The
 first exchange of such an entry (e.g. the first <code>sync</code> with a library given
 with <code>--pool PATH</code> that has papers of the library) asks about these
@@ -1170,7 +1182,11 @@ exchanges merge three-way.</p>
 <p>An entry is never removed by an exchange:</p>
 <ul>
 <li><code>papers rm KEY</code> removes the entry from the library only. <code>push</code> and
-  <code>sync</code> do not remove it from the pool.</li>
+  <code>sync</code> do not remove it from the pool. Its origin copies stay. An entry
+  that later gets KEY by a change of key (<code>papers edit --key</code>, a rename)
+  does not take them: its own origin copies replace them, and where it
+  has none they are dropped, so that it is not taken for the removed
+  paper.</li>
 <li>An entry removed from the pool stays in the libraries that have it. It
   is no longer shared: <code>pull</code>, <code>push</code> and <code>sync</code> without KEY or <code>--all</code>
   (and the auto-push of a shallow library) leave it out, and note it once:</li>
@@ -1341,30 +1357,34 @@ origin copy: that pool entry is taken if it is the same paper as the origin
 copy or as the entry. Otherwise, e.g. when the pool key now names another
 paper, the pool entry is found by the rule above (from the origin copy,
 then from the entry), and last under the pool key, if its DOI, arXiv
-identifier and ISBN do not differ from those of the origin copy (both
-titles changed). When the pool has the same paper twice, the entry of the
+identifier and ISBN do not differ from those of the origin copy and it has
+the same authors (family names) and year (both titles changed). When the pool has the same paper twice, the entry of the
 origin copy is the one exchanged.</p>
 <h2 id="origin-copies">Origin copies<a class="headerlink" href="#origin-copies" title="Permanent link">&para;</a></h2>
-<p><code>.papers/origin/</code>, next to the bibtex of the library, holds one file per
+<p><code>.papers/origin/</code> of the library holds one file per
 pool: the pool of the library, and each library exchanged with through
-<code>--pool PATH</code>. A file is named after the folder of the pool and the start
-of a hash of its path as the library names it, e.g.
-<code>shared-with-bob-d15650.bib</code> for <code>../shared-with-bob</code>, or
-<code>papers-&lt;hash&gt;.bib</code> for <code>~/Documents/papers</code>. The first lines of the file
-name the pool and give the modification time of its bibtex at the last
-exchange. In a library whose pool is <code>../shared-with-bob</code>, after <code>papers
-pull agnew_farrell1978</code> and <code>papers pull</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>@comment{papers-pool ../shared-with-bob}
+<code>--pool PATH</code>. The pool is named by its library identifier (the <code>id</code> of
+its <code>.papers/config.json</code>), which does not change when the library or the
+pool moves: after a move, <code>papers config pool NEWPATH</code> finds its origin
+copies again. A file is named after the folder of the pool and the start of
+a hash of its identifier, e.g. <code>shared-with-bob-d15650.bib</code>. The first lines
+of the file name the pool, give the modification time of its bibtex at the
+last exchange, and where the pool was then. In a library whose pool is
+<code>../shared-with-bob</code>, after <code>papers pull agnew_farrell1978</code> and
+<code>papers pull</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>@comment{papers-pool 9b916361b46f4304980306f3dcdce793}
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>@comment{papers-pulled 1792681264781917448}
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>@article{agnew_farrell1978,
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a> author = {Agnew, D. C. and Farrell, W. E.},
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a> papers-pool-key = {agnew_farrell1978},
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a> papers-time = {2026-10-22T17:01:45+02:00},
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a> title = {Self-consistent equilibrium ocean tides},
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a> year = {1978}
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>}
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>@comment{papers-pool-path ~/papers/shared-with-bob}
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>@article{agnew_farrell1978,
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a> author = {Agnew, D. C. and Farrell, W. E.},
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a> papers-pool-key = {agnew_farrell1978},
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a> papers-time = {2026-10-22T17:01:45+02:00},
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a> title = {Self-consistent equilibrium ocean tides},
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a> year = {1978}
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>}
 </code></pre></div>
 <p>The file records, for each entry exchanged with the pool (by <code>add</code>, <code>pull</code>
 or <code>push</code>), its origin copy, under the library's key, with the key in the
@@ -1372,24 +1392,41 @@ pool (<code>papers-pool-key</code>) and the time (<code>papers-time</code>). In 
 library, the origin copy for its pool also keeps its <code>file</code> field, the
 file links of the pool entry after the exchange, so that a pull can tell a
 link that the pool entry removed from one it never had (the origin copies
-for other libraries have no <code>file</code> field). The file links are not part of
+for other libraries have no <code>file</code> field). For a pool entry without file
+links, the field is there and empty (<code>file = {}</code>): the pool entry had no
+links, while an origin copy without the field (e.g. recorded before the
+library was shallow) says nothing about them. In the library bibtex, an
+entry whose last link a pull removed has no <code>file</code> field. The file links are not part of
 the three-way merge. The modification time is recorded at a pull of all
 entries that skipped no conflict, or a push or an add when the pool had
 not changed since the previous exchange (or when it is the first
 exchange). A push that leaves the pool entry with fields or files that the
 library entry does not have does not count: <code>papers status</code> then shows the
-pool as changed until the next pull. The files are part of the git backup
-of the library (see <a href="../git/">Git integration</a>).</p>
+pool as changed until the next pull. The files are part of the history of
+the library (see <a href="../undo-redo/">Undo and redo</a>), which <code>papers undo</code>
+restores with its bibtex.</p>
+<p>papers reads every <code>.bib</code> file of <code>.papers/origin/</code>. Two files that name
+the same pool (e.g. a copy) are merged, and the next time papers writes
+the origin copies of that pool, it writes them to the file of its own name
+and removes the other.</p>
 <p>The files of all pools are kept: after <code>papers config pool PATH</code>, the
 library uses the file of PATH (with the origin copies of the exchanges
 with <code>--pool PATH</code>, if any), and setting the pool back to an earlier one
 finds its origin copies again.</p>
 <p>Earlier v3 beta versions kept all the origin copies in one file,
 <code>.papers/origin.bib</code>: papers splits it into these files the first time it
-reads it, and removes it.</p>
+reads it, and removes it. Versions up to 3.0.0b5 named the pool by its path
+(<code>@comment{papers-pool ../shared-with-bob}</code>): at the next exchange with the
+pool, papers moves its origin copies to the pool's identifier: those of
+every path that names the pool (e.g. <code>../shared-with-bob</code> and
+<code>~/papers/shared-with-bob</code>) at once, an origin copy already under the
+identifier being kept. A pool that has no identifier yet (a library of an
+earlier version that never recorded a step) keeps its path until it has
+one.</p>
 <p>The origin copy is the third version of a three-way merge. It is the
 version of the side that sent the entry, as it was sent: the pool entry
-after <code>add</code> and <code>pull</code>, the library entry after <code>push</code>. What the receiving
+after <code>add</code> and <code>pull</code>, the library entry after <code>push</code>, without the
+former keys (<code>ids</code>), which each side keeps for itself. What the receiving
 side has beyond it is a change of that side, for the next exchange the
 other way: a field that only the pool entry has comes with the next
 <code>pull</code>; a field that only the library entry has goes to the pool with the
@@ -1478,7 +1515,9 @@ to PATH. This is not <code>papers -C PATH add</code>, which adds to the library 
 <h2 id="a-pool-with-entries-papers-cannot-read">A pool with entries papers cannot read<a class="headerlink" href="#a-pool-with-entries-papers-cannot-read" title="Permanent link">&para;</a></h2>
 <p>An entry that the bibtex parser cannot read, such as one with a field
 given twice or a missing brace, is kept in the file as it is, but papers
-does not see it. Every command that loads that bibtex warns about it, with
+does not see it. As in BibTeX, field names and keys ignore case: <code>Title</code>
+and <code>title</code> in one entry are a field given twice, and an entry <code>smith2000</code>
+after an entry <code>Smith2000</code> is a key given twice (the first one is read). Every command that loads that bibtex warns about it, with
 its line. Papers does not write to a pool that has such an entry: it would
 not find that paper there, and would add it again. <code>push</code>, <code>sync</code> and the
 commands that add to the pool stop with an error, and nothing is changed,
@@ -1489,11 +1528,14 @@ until the entry is fixed in the pool's bibtex. Reading from the pool
 but a <code>pull</code> can change journal abbreviations and other fields that the
 paper was written with. Leave <code>auto-push</code> off there, and do not pull.</p>
 <h2 id="undo-in-a-pool">Undo in a pool<a class="headerlink" href="#undo-in-a-pool" title="Permanent link">&para;</a></h2>
-<p>A pool is a library with its own backup history (see
-<a href="../git/#pools-and-shallow-libraries">Git integration</a>). <code>papers undo</code> in a
-library undoes a change of that library only: an entry that <code>add</code> also
-added to the pool stays in the pool. To undo a change in the pool, run the
-command in the pool, e.g. <code>papers -C ../sealevel undo</code>. The origin copies
+<p>A pool is a library with its own history (see
+<a href="../undo-redo/">Undo and redo</a>). <code>papers undo</code> in a
+library also undoes what the command wrote to the pool (an entry that
+<code>add</code> also added to the pool, a push); if the pool changed since, it
+reverts the pool's step there (a new step of the pool);
+<code>papers undo --library-only</code> undoes the library only. To undo a change
+made in the pool, run the command in the pool, e.g.
+<code>papers -C ../sealevel undo</code>. The origin copies
 of the library are restored with its bibtex: see
 <a href="../undo-redo/#undo-in-a-library-that-has-a-pool">Undo in a library that has a pool</a>.</p>
 

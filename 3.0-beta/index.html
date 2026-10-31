@@ -861,7 +861,7 @@
   <span class="md-ellipsis">
     
   
-    Git integration
+    Using git
   
 
     
@@ -950,10 +950,11 @@ PDFs from there, so that each PDF is stored and fetched once.</p>
 <p>It works like <code>git</code>: one <code>papers</code> command with subcommands, run inside a
 project folder.</p>
 <ul>
-<li><strong>Add papers</strong> from PDFs, DOIs, bibtex, RIS or CSL-JSON files, or whole folders. The DOI is
+<li><strong>Add papers</strong> from PDFs, DOIs, bibtex, RIS, CSL-JSON or BibJSON files, or whole folders. The DOI is
   read from the PDF, and the metadata comes from
   <a href="https://github.com/CrossRef/rest-api-doc">crossref</a> (by DOI or full-text
-  search), doi.org or google scholar.</li>
+  search), doi.org, google scholar or
+  <a href="https://openalex.org">OpenAlex</a>.</li>
 <li><strong>Name the PDFs</strong> with a template (<code>{authorX}_{year}_{title}</code> by default),
   and attach supplements to an entry.</li>
 <li><strong>Share entries and PDFs between projects</strong>: a shallow project uses
@@ -966,9 +967,16 @@ project folder.</p>
 <li><strong>Detect duplicates</strong> by DOI, arXiv identifier, ISBN, or authors and
   title, and merge them.</li>
 <li><strong>Export</strong> a selection as a library with copies of its PDFs, or as RIS
-  and CSL-JSON (for Zotero, EndNote, pandoc).</li>
-<li><strong>Plain files</strong>: the bibtex is the database. Every change is backed up
-  with git (when it is installed), and <code>papers undo</code> / <code>papers redo</code> take it back or restore it.</li>
+  and CSL-JSON (for Zotero, EndNote, pandoc) or BibJSON (for programs).</li>
+<li><strong>Plain files</strong>: the bibtex is the database, the PDFs stay in folders you
+  see, and the library can be edited with any tool.</li>
+<li><strong>Undo anything</strong>: every command is a step of the library's history,
+  kept on your computer; <code>papers undo</code> / <code>papers redo</code> take back any
+  command, with the files it moved, renamed or deleted, and a change made
+  outside papers is never lost.</li>
+<li><strong>Fast on large libraries</strong>: the parsed bibtex is cached piece by piece,
+  and <code>papers status</code> compares a project with its pool only where they
+  changed.</li>
 </ul>
 <h2 id="get-started">Get started<a class="headerlink" href="#get-started" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>papers-cli<span class="w">    </span><span class="c1"># the 3.0 beta</span>
@@ -996,7 +1004,7 @@ project folder.</p>
 <li><a href="export/">Export</a></li>
 <li><a href="global-library/">A global shared library</a></li>
 <li><a href="library-management/">Managing your library</a></li>
-<li><a href="git/">Git integration</a></li>
+<li><a href="git/">Using git</a></li>
 <li><a href="undo-redo/">Undo and redo</a></li>
 </ul>
 <h2 id="from-the-same-author">From the same author<a class="headerlink" href="#from-the-same-author" title="Permanent link">&para;</a></h2>
